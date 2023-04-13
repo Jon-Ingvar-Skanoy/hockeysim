@@ -13,25 +13,31 @@ n2 = pickle.load(open("names_21-22.p", "rb"))
 n3 = pickle.load(open("names_22-23.p", "rb"))
 new_names = []
 for row in n1:
+    row = row.replace("*","")
     new_names.append(row)
 for row in n2:
+    row = row.replace("*","")
     if(row not in new_names):
         new_names.append(row)
 for row in n3:
+    row = row.replace("*","")
     if(row not in new_names):
         new_names.append(row)
-#print(new_names, len(new_names))
-new_array = np.zeros([len(new_names)-1,5])
-for i in range(0,len(new_names)-1):
+print(new_names, len(new_names))
+new_array = np.zeros([len(new_names),5])
+for i in range(0,len(new_names)):
     for i2 in range(0,len(n1)):
+        n1[i2]= n1[i2].replace("*","")
         if(new_names[i] == n1[i2]):
             new_array[i] += s1[i2]
     for i2 in range(0,len(n2)):
+        n2[i2]= n2[i2].replace("*","")
         if(new_names[i] == n2[i2]):
             new_array[i] += s2[i2]
     for i2 in range(0,len(n3)):
+        n3[i2]= n3[i2].replace("*","")
         if(new_names[i] == n3[i2]):
             new_array[i] += s3[i2]
-print(new_array)
+print(new_names)
 pickle.dump(new_array, open("20-23.p", "wb"))
 pickle.dump(new_names, open("names_20-23.p", "wb"))

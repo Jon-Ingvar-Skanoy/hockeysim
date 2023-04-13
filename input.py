@@ -9,6 +9,7 @@ with open("21-22.csv", "r", newline='') as csvfile:
     
     next(spamreader)
     next(spamreader)
+    print()
     i = 0
     last_season = np.zeros([33,5])
     names = []
