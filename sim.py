@@ -23,6 +23,7 @@ class Team:
         self.team3_2 = "a"
         self.id = id
         self.match_history = []
+        self.beaten = []
         
 #Antakelse: Det er IKKE høyere sjanse for mål ved "shoutout"
 #Antakelse: statistikken vi har inkluderer ikke overtid
@@ -51,18 +52,22 @@ def sim_game(team1,team2):
         if (goals_team1<goals_team2):
             team1.points +=1
             team2.points +=2
+            team2.beaten.append(team1.id)
             return [1,2]
         if (goals_team1>goals_team2):
             team1.points +=2
             team2.points +=1
+            team1.beaten.append(team2.id)
             return [2,1]
     if (goals_team1<goals_team2):
         team1.points +=0
         team2.points +=2
+        team2.beaten.append(team1.id)
         return [0,2]
     if (goals_team1>goals_team2):
         team1.points +=2
         team2.points +=0
+        team1.beaten.append(team2.id)
         return [2,0]
     
     
