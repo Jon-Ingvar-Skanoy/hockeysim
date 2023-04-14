@@ -24,26 +24,26 @@ class Team:
 
 
 data = pickle.load(open("teams_in_div.p", "rb"))
-size1 = 10000
+size1 = 100000
 
 for Conference in data:
     for Division in Conference:
             for team in Division:
-                #df = poisson.rvs(mu =(team.k/team.t),size=size1)
-                #fig = px.histogram(df,histnorm='probability',title=team.name)
-                #fig.show()
-                #df = binom.rvs(1000, p = (team.binom_a/team.binom_b), size = size1)/1000
-                #fig = px.histogram(df,histnorm='probability',title=team.name)
-                #fig.show()
+                df = poisson.rvs(mu =(team.k/team.t),size=size1)
+                fig = px.histogram(df,histnorm='probability',title=team.name)
+                fig.show()
+                df = binom.rvs(10000, p = (team.binom_a/team.binom_b), size = size1)/10000
+                fig = px.histogram(df,histnorm='probability',title=team.name)
+                fig.show()
                 df = []
                 for i in range(10000):
                     df.append(sum(nbinom.rvs(team.k,(team.poisson_la),size=60)))
                 fig = px.histogram(df,histnorm='probability',title=team.name)
                 fig.show()
-                
-                #df = betabinom.rvs(1000,team.binom_a,team.binom_b, size = 10000)/1000
-                #fig = px.histogram(df,histnorm='probability',title=team.name)
-                #fig.show()
+            
+                df = betabinom.rvs(10000,team.binom_a,team.binom_b, size = 100000)/10000
+                fig = px.histogram(df,histnorm='probability',title=team.name)
+                fig.show()
 
                 
 
