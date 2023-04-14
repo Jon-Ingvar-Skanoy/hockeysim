@@ -7,6 +7,7 @@ from scipy.stats import poisson, binom, gamma,betabinom, nbinom
 import random
 import copy
 import tqdm
+import multiprocessing
 
 class Team:
     def __init__(self,name, games_played, goals_for,goals_against,shots_on_goal,shots_against, id):
@@ -235,7 +236,15 @@ def create_teams():
  #   print(team.team3_1.name)
   #  print(team.team3_2.name)
 
-teams = create_teams()
-results = season_simulation_wrapper(teams,1000)
-pickle.dump(results, open("result.p", "wb"))
-print("hello")
+if __name__ == '__main__':
+    teams = create_teams()
+    n = 1000
+    m = 6
+    input = []
+    pool = multiprocessing.Pool(processes=m)
+    for i in prange(m):
+        input.append((teams, n))
+    results = pool.starmap(season_simulation_wrapper,input)
+    resultArray = np.concatenate(results)
+    pickle.dump(resultArray, open("result.p", "wb"))
+    print("hello")

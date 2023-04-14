@@ -52,7 +52,7 @@ for i in range(0,len(new_names)):
         for i2 in range(0,len(old_names[year])):
             old_names[year][i2]= old_names[year][i2].replace("*","")
             if(new_names[i] == old_names[year][i2]):
-                new_array[i] += old_data[year][i2]
+                new_array[i] += (old_data[year][i2]*(1-year/20)).round()
 
 
 
