@@ -15,7 +15,7 @@ class Team:
         self.t = games_played
         self.k = shots_on_goal
         self.binom_a =goals_against
-        self.binom_b = shots_against
+        self.binom_b = shots_against- self.binom_a
         self.name = name
         self.poisson_la= (self.t*60)/(self.t*60+1)
         self.points = 0
