@@ -64,49 +64,6 @@ def sim_game(team1,team2):
         team1.points +=2
         team2.points +=0
         return [2,0]
-    
-    
-def create3matches(division):
-
-    for half in division:
-        threematchlist = ["a","a","a"]
-        while threematchlist.count("a") != 0:
-            threematchlist = []
-            for team in half:
-                threematchlist.append(team.team3_1)
-                threematchlist.append(team.team3_2)        
-            tmp1 = ""
-            tmp2 = ""
-            i=0
-            while tmp1 == "" or tmp2 == "":
-                if(tmp1==""):
-                    if(threematchlist[i] =="a"):
-                        tmp1 = i
-                elif(tmp2==""):
-                    if(threematchlist[i] == "a"):
-                        tmp2 = i
-                i+=1
-            if tmp1%2 == 0:
-                tmpvalue1 = int(tmp1/2)
-                tmpTeam1 = half[tmpvalue1]
-                tmp1secondary = False
-            else:
-                tmpTeam1 = half[int(round(tmp1/2,0))]
-                tmp1secondary = True
-            if tmp2%2 == 0:
-                tmpTeam2 = half[int(tmp2/2)]
-                tmp2secondary = False
-            else:
-                tmpTeam2 = half[int(round(tmp2/2,0))]
-                tmp2secondary = True
-            if(tmp1secondary):
-                tmpTeam1.team3_2 = tmpTeam2
-            else:
-                tmpTeam1.team3_1 = tmpTeam2
-            if(tmp2secondary):
-                tmpTeam2.team3_2 = tmpTeam1
-            else:
-                tmpTeam2.team3_1 = tmpTeam1
 
 def subdivision_simulation(teams):
     random.shuffle(teams)
@@ -231,6 +188,6 @@ def create_teams():
   #  print(team.team3_2.name)
 
 teams = create_teams()
-results = season_simulation_wrapper(teams,100)
+results = season_simulation_wrapper(teams,1000)
 pickle.dump(results, open("result.p", "wb"))
 print("hello")

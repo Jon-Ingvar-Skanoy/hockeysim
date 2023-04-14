@@ -4,7 +4,7 @@ import plotly.express as px
 import plotly.io as io
 from numba import jit, prange
 import csv 
-with open("21-22.csv", "r", newline='') as csvfile:
+with open("20-21.csv", "r", newline='') as csvfile:
     spamreader = csv.reader(csvfile)
     
     next(spamreader)
@@ -23,5 +23,5 @@ with open("21-22.csv", "r", newline='') as csvfile:
 
 
 print(names)
-pickle.dump(last_season, open("21-22.p", "wb"))
-pickle.dump(names, open("names_21-22.p", "wb"))
+#pickle.dump(last_season, open("21-22.p", "wb"))
+#pickle.dump(names, open("names_21-22.p", "wb"))
