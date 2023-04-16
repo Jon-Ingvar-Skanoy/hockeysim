@@ -8,7 +8,6 @@ io.renderers.default = "browser"
 
 class Team:     #definiasjon av team classen se sim.py for mer info
     def __init__(self,name, games_played, goals_for,goals_against,shots_on_goal,shots_against, id):
-        self.pi = 0
         self.t = games_played
         self.k = shots_on_goal
         self.binom_a =goals_against

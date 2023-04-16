@@ -1,9 +1,8 @@
 import pickle
 import numpy as np
-import plotly.express as px
-import plotly.io as io
-from numba import jit, prange
-from scipy.stats import poisson, binom, gamma,betabinom, nbinom
+
+from numba import prange
+from scipy.stats import betabinom, nbinom
 import random
 import copy
 import tqdm
@@ -11,7 +10,6 @@ import multiprocessing
 
 class Team:
     def __init__(self,name, games_played, goals_for,goals_against,shots_on_goal,shots_against, id):
-        self.pi = 0
         self.t = games_played
         self.k = shots_on_goal
         self.binom_a =goals_against
@@ -20,8 +18,6 @@ class Team:
         self.poisson_la= (self.t*60)/(self.t*60+1)
         self.points = 0
         self.ma = 0
-        self.team3_1 = "a"
-        self.team3_2 = "a"
         self.id = id
         self.match_history = []
         self.beaten = []
@@ -70,49 +66,7 @@ def sim_game(team1,team2):
         team2.points +=0
         team1.beaten.append(team2.id)
         return [2,0]
-    
-    
-def create3matches(division):
 
-    for half in division:
-        threematchlist = ["a","a","a"]
-        while threematchlist.count("a") != 0:
-            threematchlist = []
-            for team in half:
-                threematchlist.append(team.team3_1)
-                threematchlist.append(team.team3_2)        
-            tmp1 = ""
-            tmp2 = ""
-            i=0
-            while tmp1 == "" or tmp2 == "":
-                if(tmp1==""):
-                    if(threematchlist[i] =="a"):
-                        tmp1 = i
-                elif(tmp2==""):
-                    if(threematchlist[i] == "a"):
-                        tmp2 = i
-                i+=1
-            if tmp1%2 == 0:
-                tmpvalue1 = int(tmp1/2)
-                tmpTeam1 = half[tmpvalue1]
-                tmp1secondary = False
-            else:
-                tmpTeam1 = half[int(round(tmp1/2,0))]
-                tmp1secondary = True
-            if tmp2%2 == 0:
-                tmpTeam2 = half[int(tmp2/2)]
-                tmp2secondary = False
-            else:
-                tmpTeam2 = half[int(round(tmp2/2,0))]
-                tmp2secondary = True
-            if(tmp1secondary):
-                tmpTeam1.team3_2 = tmpTeam2
-            else:
-                tmpTeam1.team3_1 = tmpTeam2
-            if(tmp2secondary):
-                tmpTeam2.team3_2 = tmpTeam1
-            else:
-                tmpTeam2.team3_1 = tmpTeam1
 
 def subdivision_simulation(teams):
     random.shuffle(teams)
@@ -124,38 +78,28 @@ def subdivision_simulation(teams):
             for team in teams:
                 if (team == teams[i] or team == teams[i+1] or teams[i-1] == team):
                    pass
-                   
                 else:
-                    
                     sim_game(team,teams[i])
                     sim_game(team,teams[i])
-               
         else:
             sim_game(teams[i],teams[0])
             sim_game(teams[i],teams[0])
             sim_game(teams[i],teams[0])
-            
             for team in teams:
                 if (team == teams[i] or team == teams[0] or teams[i-1] == team):
                     pass
                 else:
-                    
                     sim_game(team,teams[i])
                     sim_game(team,teams[i])
                
-    
-    
-    #for team2 in teams:
-    #    tmp = team2.match_history
-    #    tmp.sort()
-    #    print(len(tmp))
-    
+
 def division_simulation(division):
     for team in division[0]:
         for i in range(8):
             sim_game(team, division[1][i])
             sim_game(team, division[1][i])
             sim_game(team, division[1][i])
+
 
 def interconference_simulation(teams):
     div1 = teams[0]
@@ -166,6 +110,7 @@ def interconference_simulation(teams):
                     for team2 in subdivision2:
                         sim_game(team,team2)
                         sim_game(team,team2)
+  
     
 def season_simulation(teams):
 
@@ -176,6 +121,8 @@ def season_simulation(teams):
     interconference_simulation(teams)
     return teams
 
+
+
 def season_simulation_wrapper(teams,n):
     outcomes = []
     for i in tqdm.tqdm(range(n)):
@@ -183,6 +130,7 @@ def season_simulation_wrapper(teams,n):
         outcome = season_simulation(copyteam)
         outcomes.append(outcome)
     return outcomes
+
 
 def create_teams():
     data = pickle.load(open("20-23.p", "rb"))
@@ -198,12 +146,11 @@ def create_teams():
     garbagecan = []
     i =0
 
-    #print(len(data))
-    #print(len(names))
+
     for row in data:
         
         tmp = Team(names[i],row[0],row[1],row[2],row[3],row[4], id=i)
-        #print(tmp.name)
+        
         if(tmp.name in ["Carolina Hurricanes","New Jersey Devils", "New York Rangers","Columbus Blue Jackets", "New York Islanders", "Philadelphia Flyers", "Washington Capitals","Pittsburgh Penguins"]):
             mTeams.append(tmp)
         elif(tmp.name in ["Dallas Stars","Colorado Avalanche","Minnesota Wild", "Winnipeg Jets","Nashville Predators", "St. Louis Blues", "Arizona Coyotes", "Chicago Blackhawks"]):
@@ -217,24 +164,7 @@ def create_teams():
         i +=1
     pickle.dump(teams, open("teams_in_div.p", "wb"))
     return teams
-#for division in teams:
-#    for alist in division:
-#        print(len(alist))
-#        for item in alist:
-#            print(item.name)
-#print("leftovers:")
-#for item in garbagecan:
-#    print(item.name)
 
-
-#create3matches(wDivision)
-#subdivision_simulation(aTeams)
-#subdivision_simulation(mTeams)
-#division_simulation(eDivision)
-
-#for team in mTeams:
- #   print(team.team3_1.name)
-  #  print(team.team3_2.name)
 
 if __name__ == '__main__':
     teams = create_teams()
