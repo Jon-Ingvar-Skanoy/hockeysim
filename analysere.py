@@ -37,4 +37,5 @@ for season in data:
     winnernames.append(max.name)
 
 fig = px.histogram(winnernames,histnorm='probability')
+
 fig.show()      
