@@ -65,7 +65,7 @@ for i in range(0,len(new_names)):
  #       n3[i2]= n3[i2].replace("*","")
  #       if(new_names[i] == n3[i2]):
   #          new_array[i] += s3[i2]
-
+print(new_names)
 for i in range(33):
    print(new_names[i], new_array[i])
 pickle.dump(new_array, open("20-23.p", "wb"))
