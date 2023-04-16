@@ -1,14 +1,10 @@
 import pickle
-from numba import jit, prange
-from scipy.stats import poisson, binom, gamma,betabinom, nbinom, beta
-import random
-
-import copy
-import tqdm
+from numba import prange
+from scipy.stats import gamma,betabinom, nbinom, beta
 import plotly.express as px
 import plotly.io as io
 import numpy as np
-
+io.renderers.default = "browser"
 
 class Team:     #definiasjon av team classen se sim.py for mer info
     def __init__(self,name, games_played, goals_for,goals_against,shots_on_goal,shots_against, id):
@@ -31,9 +27,9 @@ data = pickle.load(open("teams_in_div.p", "rb")) # henter data fra sim.py
 mulige_lag = ['Boston Bruins', 'Carolina Hurricanes', 'New Jersey Devils', 'Vegas Golden Knights', 'Toronto Maple Leafs', 'New York Rangers', 'Edmonton Oilers', 'Colorado Avalanche', 'Dallas Stars', 'Los Angeles Kings', 'Minnesota Wild', 'Seattle Kraken', 'Tampa Bay Lightning', 'Winnipeg Jets', 'Florida Panthers', 'New York Islanders', 'Calgary Flames', 'Nashville Predators', 'Pittsburgh Penguins', 'Buffalo Sabres', 'Ottawa Senators', 'Vancouver Canucks', 'St. Louis Blues', 'Detroit Red Wings', 'Washington Capitals', 'Philadelphia Flyers', 'Arizona Coyotes', 'Montreal Canadiens', 'San Jose Sharks', 'Chicago Blackhawks', 'Anaheim Ducks', 'Columbus Blue Jackets', 'Phoenix Coyotes', 'Atlanta Thrashers']
 
 
-size1 = 100000 # datapunkt for hvor mye data vi pruker i plottene
-plot = 1       # instilling for hvilke plot som skal plottes, 0 = alle, 1 = postiroir sansynlighetsfordeling i poisson prosses, 2 = prediktiv sansynlighetsfordeling i poisson prosses,  3 = postiroir sansynlighetsfordeling i Berunulli prosses, 4 = prediktiv sansynlighetsfordeling i Berunulli prosses
-target_teams = [mulige_lag[0],'Carolina Hurricanes'] # liste med navn på hvilke lag som skal plottes, ved tom liste plottes alle lag, anbefales sterk å begrense hvilke lag. mulige lag er hjelpevariabel for å velge lag.
+size1 = 100000           # datapunkt for hvor mye data vi pruker i plottene
+plot = 1                 # instilling for hvilke plot som skal plottes, 0 = alle, 1 = postiroir sansynlighetsfordeling i poisson prosses, 2 = prediktiv sansynlighetsfordeling i poisson prosses,  3 = postiroir sansynlighetsfordeling i Berunulli prosses, 4 = prediktiv sansynlighetsfordeling i Berunulli prosses
+target_teams = [mulige_lag[0],'Carolina Hurricanes']        # liste med navn på hvilke lag som skal plottes, ved tom liste plottes alle lag, anbefales sterk å begrense hvilke lag. mulige lag er hjelpevariabel for å velge lag.
 
 
 for Conference in data:
