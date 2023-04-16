@@ -4,15 +4,14 @@ import plotly.express as px
 import plotly.io as io
 from numba import jit, prange
 import csv 
-with open("10-11.csv", "r", newline='') as csvfile:
+with open("10-11.csv", "r", newline='') as csvfile: # first we determine how many lines/teams are in the file
     spamreader = csv.reader(csvfile)
-    
     next(spamreader)
     next(spamreader)
    
     i = 0
     last_season = np.zeros([ sum(1 for row in spamreader) ,5])
-with open("10-11.csv", "r", newline='') as csvfile:
+with open("10-11.csv", "r", newline='') as csvfile: # then we import the file
     spamreader = csv.reader(csvfile)
 
     next(spamreader)
@@ -24,8 +23,8 @@ with open("10-11.csv", "r", newline='') as csvfile:
         print(row[1])
         last_season[i] = [row[3],row[9],row[10],row[27],row[29]]
         i +=1
-        #print(row[3],row[9],row[10],row[27],row[29])
-        
+        # games played = row[3], Goals = row[9], Goals against = row[10], Shots = row[27], Shots against row[29]
+          
 
 
 
