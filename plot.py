@@ -27,10 +27,10 @@ mulige_lag = ['Boston Bruins', 'Carolina Hurricanes', 'New Jersey Devils', 'Vega
 
 
 size1 = 100000           # datapunkt for hvor mye data vi pruker i plottene
-plot = 1               # instilling for hvilke plot som skal plottes, 0 = alle, 1 = postiroir sansynlighetsfordeling i poisson prosses, 2 = prediktiv sansynlighetsfordeling i poisson prosses,  3 = postiroir sansynlighetsfordeling i Berunulli prosses, 4 = prediktiv sansynlighetsfordeling i Berunulli prosses
-target_teams = [mulige_lag[0],'Carolina Hurricanes']        # liste med navn på hvilke lag som skal plottes, ved tom liste plottes alle lag, anbefales sterk å begrense hvilke lag. mulige lag er hjelpevariabel for å velge lag.
+plot = 1         # instilling for hvilke plot som skal plottes, 0 = alle, 1 = postiroir sansynlighetsfordeling i poisson prosses, 2 = prediktiv sansynlighetsfordeling i poisson prosses,  3 = postiroir sansynlighetsfordeling i Berunulli prosses, 4 = prediktiv sansynlighetsfordeling i Berunulli prosses
+target_teams = [mulige_lag[0],'Arizona Coyotes',"Chicago Blackhawks",'Vegas Golden Knights']        # liste med navn på hvilke lag som skal plottes, ved tom liste plottes alle lag, anbefales sterk å begrense hvilke lag. mulige lag er hjelpevariabel for å velge lag.
 
-xp= np.arange(-6000,6000,0.002)
+xp= np.arange(0,150,1)
 
         
 for Conference in data:
@@ -41,20 +41,20 @@ for Conference in data:
                     if(team.name in target_teams or len(target_teams)==0):
 
 
-                        posterior_distrubution_of_pi = gamma.pdf(xp,team.k/(team.t*60), scale=1)
-                        pi_distribution_fig = px.line(y=posterior_distrubution_of_pi/len(posterior_distrubution_of_pi), x=xp,title=team.name)
-                        print(sum(posterior_distrubution_of_pi/len(posterior_distrubution_of_pi)))
+                        posterior_distrubution_of_pi = gamma.pdf(xp,team.k/(team.t), loc = 0,scale=1)
+                        pi_distribution_fig = px.line(y=posterior_distrubution_of_pi*80/len(posterior_distrubution_of_pi), x=xp,title=team.name)
+                        print(sum(posterior_distrubution_of_pi*80/len(posterior_distrubution_of_pi)))
  
                         #Beregner 90% intervallestimat
-                        lower_bound = beta.ppf(0.05,team.binom_a,team.binom_b, loc=0, scale=1)
-                        upper_bound = beta.ppf(0.95,team.binom_a,team.binom_b, loc=0, scale=1)
+                        lower_bound = gamma.ppf(0.05,team.k/(team.t), scale=1)
+                        upper_bound = gamma.ppf(0.95,team.k/(team.t), scale=1)
                         ninety_percent_interval = upper_bound-lower_bound
 
                         #Markerer graf med intervallestimat, og skalerer grafen så den ikke ser helt uleselig ut når den genereres
                         pi_distribution_fig.add_vline(lower_bound, line_color="maroon")
                         pi_distribution_fig.add_vline(upper_bound, line_color="maroon")
                         pi_distribution_fig.update_xaxes(range=[lower_bound-ninety_percent_interval, upper_bound+ninety_percent_interval])
-                        pi_distribution_fig.update_yaxes(range=[0,max((posterior_distrubution_of_pi)/len(posterior_distrubution_of_pi))*1.1])
+                        #pi_distribution_fig.update_yaxes(range=[0,max((posterior_distrubution_of_pi)/len(posterior_distrubution_of_pi))*1.1])
                         pi_distribution_fig.show()
 
                         """   
@@ -92,7 +92,25 @@ for Conference in data:
 
                 if(plot ==2 or plot == 0):
                     if(team.name in target_teams or len(target_teams)==0):
-                        df = []
+
+
+                        posterior_distrubution_of_pi = nbinom.pmf(xp,team.k,(team.t/(team.t+1)), loc = 0)
+                        pi_distribution_fig = px.line(y=posterior_distrubution_of_pi, x=xp,title=team.name)
+                        print(sum(posterior_distrubution_of_pi))
+ 
+                        #Beregner 90% intervallestimat
+                        lower_bound = nbinom.ppf(0.05,team.k,(team.t/(team.t+1)))
+                        upper_bound = nbinom.ppf(0.95,team.k,(team.t/(team.t+1)))
+                        ninety_percent_interval = upper_bound-lower_bound
+
+                        #Markerer graf med intervallestimat, og skalerer grafen så den ikke ser helt uleselig ut når den genereres
+                        pi_distribution_fig.add_vline(lower_bound, line_color="maroon")
+                        pi_distribution_fig.add_vline(upper_bound, line_color="maroon")
+                        pi_distribution_fig.update_xaxes(range=[lower_bound-ninety_percent_interval, upper_bound+ninety_percent_interval])
+                        pi_distribution_fig.update_yaxes(range=[0,max((posterior_distrubution_of_pi)/len(posterior_distrubution_of_pi))*1.1])
+                        pi_distribution_fig.show()
+
+                        """ df = []
                         for i in range(size1):  # for å lage liste med mange datapunkter med 60 opservasjoner. 
                             df.append(sum(nbinom.rvs(team.k,(team.poisson_la),size=60)))
                         fig = px.histogram(df,histnorm='probability',title=team.name) # plotting av datapunktene med mean og  mean+- standard deviation
@@ -100,18 +118,34 @@ for Conference in data:
                         fig.add_vline(np.mean(df)+np.std(df), line_color='maroon',annotation_text="std")
                         fig.add_vline(np.mean(df)-+np.std(df), line_color='maroon',annotation_text="std")
                         fig.update_layout(legend=dict(y=0.5, traceorder='reversed', font_size=16))
-                        fig.show()
+                        fig.show() """
                 
                 if(plot ==4 or plot == 0):
                     if(team.name in target_teams or len(target_teams)==0):
-                        df = betabinom.rvs(10000,team.binom_a,team.binom_b, size = 100000)/10000 # for å lage liste med datapunkter med 1 observasjon 
+
+                        posterior_distrubution_of_pi = betabinom.pmf(xp,1000,team.binom_a,team.binom_b, loc=0)
+                        pi_distribution_fig = px.line(y=posterior_distrubution_of_pi, x=xp/1000,title=team.name)
+                        print(sum(posterior_distrubution_of_pi))
+
+                        #Beregner 90% intervallestimat
+                        lower_bound = betabinom.ppf(0.05,1000,team.binom_a,team.binom_b, loc=0)/1000
+                        upper_bound = betabinom.ppf(0.95,1000,team.binom_a,team.binom_b, loc=0)/1000
+                        ninety_percent_interval = upper_bound-lower_bound
+
+                        #Markerer graf med intervallestimat, og skalerer grafen så den ikke ser helt uleselig ut når den genereres
+                        pi_distribution_fig.add_vline(lower_bound, line_color="maroon")
+                        pi_distribution_fig.add_vline(upper_bound, line_color="maroon")
+                        pi_distribution_fig.update_xaxes(range=[lower_bound-ninety_percent_interval, upper_bound+ninety_percent_interval])
+                        pi_distribution_fig.update_yaxes(range=[0,max((posterior_distrubution_of_pi)/len(posterior_distrubution_of_pi))*1.1])
+                        pi_distribution_fig.show()
+                        """ df = betabinom.rvs(10000,team.binom_a,team.binom_b, size = 100000)/10000 # for å lage liste med datapunkter med 1 observasjon 
                         fig = px.histogram(df,histnorm='probability',title=team.name)# plotting av datapunktene med mean og  mean+- standard deviation
                         fig.show()
                         fig.add_vline(np.mean(df), name="mean",line_color="maroon",annotation_text="mean =" + str(np.mean(df).round(1)))
                         fig.add_vline(np.mean(df)+np.std(df), line_color='maroon',annotation_text="std")
                         fig.add_vline(np.mean(df)-+np.std(df), line_color='maroon',annotation_text="std")
                         fig.update_layout(legend=dict(y=0.5, traceorder='reversed', font_size=16))
-                        fig.show()
+                        fig.show() """
                 
 
                 
