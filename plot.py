@@ -1,5 +1,5 @@
 import pickle
-from numba import prange
+
 from scipy.stats import gamma,betabinom, nbinom, beta
 import plotly.express as px
 import plotly.io as io
@@ -27,16 +27,37 @@ mulige_lag = ['Boston Bruins', 'Carolina Hurricanes', 'New Jersey Devils', 'Vega
 
 
 size1 = 100000           # datapunkt for hvor mye data vi pruker i plottene
-plot = 1                 # instilling for hvilke plot som skal plottes, 0 = alle, 1 = postiroir sansynlighetsfordeling i poisson prosses, 2 = prediktiv sansynlighetsfordeling i poisson prosses,  3 = postiroir sansynlighetsfordeling i Berunulli prosses, 4 = prediktiv sansynlighetsfordeling i Berunulli prosses
+plot = 1               # instilling for hvilke plot som skal plottes, 0 = alle, 1 = postiroir sansynlighetsfordeling i poisson prosses, 2 = prediktiv sansynlighetsfordeling i poisson prosses,  3 = postiroir sansynlighetsfordeling i Berunulli prosses, 4 = prediktiv sansynlighetsfordeling i Berunulli prosses
 target_teams = [mulige_lag[0],'Carolina Hurricanes']        # liste med navn på hvilke lag som skal plottes, ved tom liste plottes alle lag, anbefales sterk å begrense hvilke lag. mulige lag er hjelpevariabel for å velge lag.
 
+xp= np.arange(-6000,6000,0.002)
 
+        
 for Conference in data:
     for Division in Conference:
             for team in Division: # hvor å kjøre gjennom alle lagene
                 
                 if(plot ==1 or plot == 0):
                     if(team.name in target_teams or len(target_teams)==0):
+
+
+                        posterior_distrubution_of_pi = gamma.pdf(xp,team.k/(team.t*60), scale=1)
+                        pi_distribution_fig = px.line(y=posterior_distrubution_of_pi/len(posterior_distrubution_of_pi), x=xp,title=team.name)
+                        print(sum(posterior_distrubution_of_pi/len(posterior_distrubution_of_pi)))
+ 
+                        #Beregner 90% intervallestimat
+                        lower_bound = beta.ppf(0.05,team.binom_a,team.binom_b, loc=0, scale=1)
+                        upper_bound = beta.ppf(0.95,team.binom_a,team.binom_b, loc=0, scale=1)
+                        ninety_percent_interval = upper_bound-lower_bound
+
+                        #Markerer graf med intervallestimat, og skalerer grafen så den ikke ser helt uleselig ut når den genereres
+                        pi_distribution_fig.add_vline(lower_bound, line_color="maroon")
+                        pi_distribution_fig.add_vline(upper_bound, line_color="maroon")
+                        pi_distribution_fig.update_xaxes(range=[lower_bound-ninety_percent_interval, upper_bound+ninety_percent_interval])
+                        pi_distribution_fig.update_yaxes(range=[0,max((posterior_distrubution_of_pi)/len(posterior_distrubution_of_pi))*1.1])
+                        pi_distribution_fig.show()
+
+                        """   
                         df = []
                         for i in prange(size1): # for å lage liste med mange datapunkter med 60 opservasjoner. 
                             df.append(sum(gamma.rvs(team.k/(team.t*60),size=60)))
@@ -48,21 +69,31 @@ for Conference in data:
                     
                         fig.update_layout(legend=dict(y=0.5, traceorder='reversed', font_size=16))
                         fig.show()
-                
+                        """
                 if(plot ==3 or plot == 0):
                     if(team.name in target_teams or len(target_teams)==0):
-                        df = beta.rvs(team.binom_a,team.binom_b, size = size1)# for å lage liste med datapunkter med 1 observasjon 
-                        fig = px.histogram(df,histnorm='probability',title=team.name) # plotting av datapunktene med mean og  mean+- standard deviation
 
-                        fig.add_vline(np.mean(df), name="mean",line_color="maroon",annotation_text="mean =" + str(np.mean(df).round(1)))
-                        fig.add_vline(np.mean(df)+np.std(df), line_color='maroon',annotation_text="std")
-                        fig.add_vline(np.mean(df)-+np.std(df), line_color='maroon',annotation_text="std")
-                        fig.update_layout(legend=dict(y=0.5, traceorder='reversed', font_size=16))
-                        fig.show()
+
+                        posterior_distrubution_of_pi = beta.pdf(xp,team.binom_a,team.binom_b, loc=0, scale=1)
+                        pi_distribution_fig = px.line(y=posterior_distrubution_of_pi/len(posterior_distrubution_of_pi), x=xp,title=team.name)
+                        print(sum(posterior_distrubution_of_pi/len(posterior_distrubution_of_pi)))
+
+                        #Beregner 90% intervallestimat
+                        lower_bound = beta.ppf(0.05,team.binom_a,team.binom_b, loc=0, scale=1)
+                        upper_bound = beta.ppf(0.95,team.binom_a,team.binom_b, loc=0, scale=1)
+                        ninety_percent_interval = upper_bound-lower_bound
+
+                        #Markerer graf med intervallestimat, og skalerer grafen så den ikke ser helt uleselig ut når den genereres
+                        pi_distribution_fig.add_vline(lower_bound, line_color="maroon")
+                        pi_distribution_fig.add_vline(upper_bound, line_color="maroon")
+                        pi_distribution_fig.update_xaxes(range=[lower_bound-ninety_percent_interval, upper_bound+ninety_percent_interval])
+                        pi_distribution_fig.update_yaxes(range=[0,max((posterior_distrubution_of_pi)/len(posterior_distrubution_of_pi))*1.1])
+                        pi_distribution_fig.show()
+
                 if(plot ==2 or plot == 0):
                     if(team.name in target_teams or len(target_teams)==0):
                         df = []
-                        for i in prange(size1):  # for å lage liste med mange datapunkter med 60 opservasjoner. 
+                        for i in range(size1):  # for å lage liste med mange datapunkter med 60 opservasjoner. 
                             df.append(sum(nbinom.rvs(team.k,(team.poisson_la),size=60)))
                         fig = px.histogram(df,histnorm='probability',title=team.name) # plotting av datapunktene med mean og  mean+- standard deviation
                         fig.add_vline(np.mean(df), name="mean",line_color="maroon",annotation_text="mean =" + str(np.mean(df).round(1)))

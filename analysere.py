@@ -20,7 +20,7 @@ class Team:
         self.id = id
         self.match_history = []
         self.beaten = []
-data = pickle.load(open("result.p", "rb"))
+data = pickle.load(open("result 1.p", "rb"))
 
 def get_winners(data):
     # function that find the winner of every season and putt the winner names in a list
