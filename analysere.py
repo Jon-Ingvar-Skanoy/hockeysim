@@ -202,20 +202,19 @@ def get_match_history(data, team1_id, team2_id, graph):
         #Plotter posterior pdf som viser verdiene pi kan realistisk ha
         xp= np.arange(0,1,0.00002)
 
-        posterior_distrubution_of_pi = beta.pdf(xp,team1_win_counter,team2_win_counter, loc=0, scale=1)
+        posterior_distrubution_of_pi = beta.pdf(xp,team1_win_counter,team2_win_counter)
         pi_distribution_fig = px.line(y=posterior_distrubution_of_pi/len(posterior_distrubution_of_pi), x=xp, title= "Posterior distribution for pi, where pi represents the chances of %s beating %s"%(names[team1_id], names[team2_id]))
         print(sum(posterior_distrubution_of_pi/len(posterior_distrubution_of_pi)))
 
         #Beregner 90% intervallestimat
-        lower_bound = beta.ppf(0.05,team1_win_counter,team2_win_counter, loc=0, scale=1)
-        upper_bound = beta.ppf(0.95,team1_win_counter,team2_win_counter, loc=0, scale=1)
+        lower_bound = beta.ppf(0.05,team1_win_counter,team2_win_counter)
+        upper_bound = beta.ppf(0.95,team1_win_counter,team2_win_counter)
         ninety_percent_interval = upper_bound-lower_bound
 
         #Markerer graf med intervallestimat, og skalerer grafen så den ikke ser helt uleselig ut når den genereres
         pi_distribution_fig.add_vline(lower_bound, line_color="maroon")
         pi_distribution_fig.add_vline(upper_bound, line_color="maroon")
         pi_distribution_fig.update_xaxes(range=[lower_bound-ninety_percent_interval, upper_bound+ninety_percent_interval])
-        pi_distribution_fig.update_yaxes(range=[0,max((posterior_distrubution_of_pi)/len(posterior_distrubution_of_pi))*1.1])
         pi_distribution_fig.show()
     else:
         #Denne delen var skrevet for at get_match_history kan kalles i tiebreak-funksjonen. Om man erstatter myntkastet med funksjonskallet for denne funksjonen,
@@ -229,10 +228,8 @@ def get_match_history(data, team1_id, team2_id, graph):
 
 #Main-delen av programmet. Kan kommentere ut funksjonskall om man bare er interessert i et resultat, slik at man 
 #slipper unna å grave gjennom 35 urelaterte grafer etter det man vil ha
-get_total_points(data)
 
+#get_total_points(data)
 get_match_history(data, 24, 5, True)
-get_winners(data)
-get_avg_ranking(data)
-
-print(COINFLIPS)
+#get_winners(data)
+#get_avg_ranking(data)
