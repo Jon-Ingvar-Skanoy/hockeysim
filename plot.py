@@ -26,11 +26,12 @@ data = pickle.load(open("teams_in_div.p", "rb")) # henter data fra sim.py
 mulige_lag = ['Boston Bruins', 'Carolina Hurricanes', 'New Jersey Devils', 'Vegas Golden Knights', 'Toronto Maple Leafs', 'New York Rangers', 'Edmonton Oilers', 'Colorado Avalanche', 'Dallas Stars', 'Los Angeles Kings', 'Minnesota Wild', 'Seattle Kraken', 'Tampa Bay Lightning', 'Winnipeg Jets', 'Florida Panthers', 'New York Islanders', 'Calgary Flames', 'Nashville Predators', 'Pittsburgh Penguins', 'Buffalo Sabres', 'Ottawa Senators', 'Vancouver Canucks', 'St. Louis Blues', 'Detroit Red Wings', 'Washington Capitals', 'Philadelphia Flyers', 'Arizona Coyotes', 'Montreal Canadiens', 'San Jose Sharks', 'Chicago Blackhawks', 'Anaheim Ducks', 'Columbus Blue Jackets', 'Phoenix Coyotes', 'Atlanta Thrashers']
 
 
-size1 = 100000           # datapunkt for hvor mye data vi pruker i plottene
-plot = 1         # instilling for hvilke plot som skal plottes, 0 = alle, 1 = postiroir sansynlighetsfordeling i poisson prosses, 2 = prediktiv sansynlighetsfordeling i poisson prosses,  3 = postiroir sansynlighetsfordeling i Berunulli prosses, 4 = prediktiv sansynlighetsfordeling i Berunulli prosses
+
+plot = 4      # instilling for hvilke plot som skal plottes, 0 = alle, 1 = postiroir sansynlighetsfordeling i poisson prosses, 2 = prediktiv sansynlighetsfordeling i poisson prosses,  3 = postiroir sansynlighetsfordeling i Berunulli prosses, 4 = prediktiv sansynlighetsfordeling i Berunulli prosses
+
 target_teams = [mulige_lag[0],'Arizona Coyotes',"Chicago Blackhawks",'Vegas Golden Knights']        # liste med navn på hvilke lag som skal plottes, ved tom liste plottes alle lag, anbefales sterk å begrense hvilke lag. mulige lag er hjelpevariabel for å velge lag.
 
-xp= np.arange(0,150,1)
+xp= np.arange(0,90,1)
 
         
 for Conference in data:
@@ -40,112 +41,92 @@ for Conference in data:
                 if(plot ==1 or plot == 0):
                     if(team.name in target_teams or len(target_teams)==0):
 
-
-                        posterior_distrubution_of_pi = gamma.pdf(xp,team.k/(team.t), loc = 0,scale=1)
-                        pi_distribution_fig = px.line(y=posterior_distrubution_of_pi*80/len(posterior_distrubution_of_pi), x=xp,title=team.name)
-                        print(sum(posterior_distrubution_of_pi*80/len(posterior_distrubution_of_pi)))
+                        xp= np.arange(0,80,1)
+                        posterior_distrubution = gamma.pdf(xp,team.k/(team.t), loc = 0,scale=1)
+                        fig = px.line(y=posterior_distrubution*80/len(posterior_distrubution), x=xp,title=team.name)
+                        print(sum(posterior_distrubution*80/len(posterior_distrubution)))
  
                         #Beregner 90% intervallestimat
                         lower_bound = gamma.ppf(0.05,team.k/(team.t), scale=1)
                         upper_bound = gamma.ppf(0.95,team.k/(team.t), scale=1)
+                        middle_bound = gamma.ppf(0.5,team.k/(team.t), scale=1)
                         ninety_percent_interval = upper_bound-lower_bound
 
                         #Markerer graf med intervallestimat, og skalerer grafen så den ikke ser helt uleselig ut når den genereres
-                        pi_distribution_fig.add_vline(lower_bound, line_color="maroon")
-                        pi_distribution_fig.add_vline(upper_bound, line_color="maroon")
-                        pi_distribution_fig.update_xaxes(range=[lower_bound-ninety_percent_interval, upper_bound+ninety_percent_interval])
-                        #pi_distribution_fig.update_yaxes(range=[0,max((posterior_distrubution_of_pi)/len(posterior_distrubution_of_pi))*1.1])
-                        pi_distribution_fig.show()
-
-                        """   
-                        df = []
-                        for i in prange(size1): # for å lage liste med mange datapunkter med 60 opservasjoner. 
-                            df.append(sum(gamma.rvs(team.k/(team.t*60),size=60)))
-                        fig = px.histogram(df,histnorm='probability',title=team.name) # plotting av datapunktene med mean og  mean+- standard deviation
-
-                        fig.add_vline(np.mean(df), name="mean",line_color="maroon",annotation_text="mean =" + str(np.mean(df).round(1)))
-                        fig.add_vline(np.mean(df)+np.std(df), line_color='maroon',annotation_text="std")
-                        fig.add_vline(np.mean(df)-+np.std(df), line_color='maroon',annotation_text="std")
-                    
-                        fig.update_layout(legend=dict(y=0.5, traceorder='reversed', font_size=16))
+                        fig.add_vline(lower_bound, line_color="maroon")
+                        fig.add_vline(upper_bound, line_color="maroon")
+                        fig.add_vline(middle_bound, line_color="maroon",annotation_text=('Forventet verdi:%.2f'%middle_bound ))
+                        fig.update_xaxes(range=[lower_bound-ninety_percent_interval, upper_bound+ninety_percent_interval])
                         fig.show()
-                        """
+
+                        
                 if(plot ==3 or plot == 0):
                     if(team.name in target_teams or len(target_teams)==0):
+                        xp= np.arange(0,1,0.00002)
 
-
-                        posterior_distrubution_of_pi = beta.pdf(xp,team.binom_a,team.binom_b, loc=0, scale=1)
-                        pi_distribution_fig = px.line(y=posterior_distrubution_of_pi/len(posterior_distrubution_of_pi), x=xp,title=team.name)
-                        print(sum(posterior_distrubution_of_pi/len(posterior_distrubution_of_pi)))
+                        posterior_distrubution = beta.pdf(xp,team.binom_a,team.binom_b, loc=0, scale=1)
+                        fig = px.line(y=posterior_distrubution/(len(posterior_distrubution)), x=xp,title=team.name)
+                        print(sum(posterior_distrubution/(len(posterior_distrubution))))
 
                         #Beregner 90% intervallestimat
                         lower_bound = beta.ppf(0.05,team.binom_a,team.binom_b, loc=0, scale=1)
                         upper_bound = beta.ppf(0.95,team.binom_a,team.binom_b, loc=0, scale=1)
+                        middle_bound = beta.ppf(0.5,team.binom_a,team.binom_b, loc=0, scale=1)
                         ninety_percent_interval = upper_bound-lower_bound
 
                         #Markerer graf med intervallestimat, og skalerer grafen så den ikke ser helt uleselig ut når den genereres
-                        pi_distribution_fig.add_vline(lower_bound, line_color="maroon")
-                        pi_distribution_fig.add_vline(upper_bound, line_color="maroon")
-                        pi_distribution_fig.update_xaxes(range=[lower_bound-ninety_percent_interval, upper_bound+ninety_percent_interval])
-                        pi_distribution_fig.update_yaxes(range=[0,max((posterior_distrubution_of_pi)/len(posterior_distrubution_of_pi))*1.1])
-                        pi_distribution_fig.show()
+                        fig.add_vline(lower_bound, line_color="maroon")
+                        fig.add_vline(upper_bound, line_color="maroon")
+                        fig.add_vline(middle_bound, line_color="maroon",annotation_text=('Forventet verdi:%.3f'%middle_bound ))
+                        fig.update_xaxes(range=[lower_bound-ninety_percent_interval, upper_bound+ninety_percent_interval])
+                        fig.update_yaxes(range=[0,max(posterior_distrubution/len(posterior_distrubution))*1.1])
+                        fig.show()
 
                 if(plot ==2 or plot == 0):
                     if(team.name in target_teams or len(target_teams)==0):
+                        xp= np.arange(5,60,1)
 
-
-                        posterior_distrubution_of_pi = nbinom.pmf(xp,team.k,(team.t/(team.t+1)), loc = 0)
-                        pi_distribution_fig = px.line(y=posterior_distrubution_of_pi, x=xp,title=team.name)
-                        print(sum(posterior_distrubution_of_pi))
+                        predictive_distrubution = nbinom.pmf(xp,team.k,(team.t/(team.t+1)), loc = 0)
+                        fig = px.line(y=predictive_distrubution, x=xp,title=team.name)
+                        print(sum(predictive_distrubution))
  
                         #Beregner 90% intervallestimat
                         lower_bound = nbinom.ppf(0.05,team.k,(team.t/(team.t+1)))
                         upper_bound = nbinom.ppf(0.95,team.k,(team.t/(team.t+1)))
+                        middle_bound = nbinom.ppf(0.5,team.k,(team.t/(team.t+1)))
                         ninety_percent_interval = upper_bound-lower_bound
 
                         #Markerer graf med intervallestimat, og skalerer grafen så den ikke ser helt uleselig ut når den genereres
-                        pi_distribution_fig.add_vline(lower_bound, line_color="maroon")
-                        pi_distribution_fig.add_vline(upper_bound, line_color="maroon")
-                        pi_distribution_fig.update_xaxes(range=[lower_bound-ninety_percent_interval, upper_bound+ninety_percent_interval])
-                        pi_distribution_fig.update_yaxes(range=[0,max((posterior_distrubution_of_pi)/len(posterior_distrubution_of_pi))*1.1])
-                        pi_distribution_fig.show()
+                        fig.add_vline(lower_bound, line_color="maroon")
+                        fig.add_vline(upper_bound, line_color="maroon")
+                        fig.add_vline(middle_bound, line_color="maroon",annotation_text=('Forventet verdi:%.0f'%middle_bound ))
+                        fig.update_xaxes(range=[lower_bound-ninety_percent_interval, upper_bound+ninety_percent_interval])
+                        fig.update_yaxes(range=[0,max(predictive_distrubution/len(predictive_distrubution))*1.1])
+                        fig.show()
 
-                        """ df = []
-                        for i in range(size1):  # for å lage liste med mange datapunkter med 60 opservasjoner. 
-                            df.append(sum(nbinom.rvs(team.k,(team.poisson_la),size=60)))
-                        fig = px.histogram(df,histnorm='probability',title=team.name) # plotting av datapunktene med mean og  mean+- standard deviation
-                        fig.add_vline(np.mean(df), name="mean",line_color="maroon",annotation_text="mean =" + str(np.mean(df).round(1)))
-                        fig.add_vline(np.mean(df)+np.std(df), line_color='maroon',annotation_text="std")
-                        fig.add_vline(np.mean(df)-+np.std(df), line_color='maroon',annotation_text="std")
-                        fig.update_layout(legend=dict(y=0.5, traceorder='reversed', font_size=16))
-                        fig.show() """
+                     
                 
                 if(plot ==4 or plot == 0):
                     if(team.name in target_teams or len(target_teams)==0):
+                            xp = np.arange(40,150,1)
+                            predictive_distrubution = betabinom.pmf(xp,1000,team.binom_a,team.binom_b, loc=0)
+                            fig = px.line(y=predictive_distrubution, x=xp/1000,title=team.name)
+                            print(sum(predictive_distrubution))
 
-                        posterior_distrubution_of_pi = betabinom.pmf(xp,1000,team.binom_a,team.binom_b, loc=0)
-                        pi_distribution_fig = px.line(y=posterior_distrubution_of_pi, x=xp/1000,title=team.name)
-                        print(sum(posterior_distrubution_of_pi))
+                            #Beregner 90% intervallestimat
+                            lower_bound = betabinom.ppf(0.05,1000,team.binom_a,team.binom_b, loc=0)/1000
+                            upper_bound = betabinom.ppf(0.95,1000,team.binom_a,team.binom_b, loc=0)/1000
+                            middle_bound = betabinom.ppf(0.5,1000,team.binom_a,team.binom_b, loc=0)/1000
+                            ninety_percent_interval = upper_bound-lower_bound
 
-                        #Beregner 90% intervallestimat
-                        lower_bound = betabinom.ppf(0.05,1000,team.binom_a,team.binom_b, loc=0)/1000
-                        upper_bound = betabinom.ppf(0.95,1000,team.binom_a,team.binom_b, loc=0)/1000
-                        ninety_percent_interval = upper_bound-lower_bound
-
-                        #Markerer graf med intervallestimat, og skalerer grafen så den ikke ser helt uleselig ut når den genereres
-                        pi_distribution_fig.add_vline(lower_bound, line_color="maroon")
-                        pi_distribution_fig.add_vline(upper_bound, line_color="maroon")
-                        pi_distribution_fig.update_xaxes(range=[lower_bound-ninety_percent_interval, upper_bound+ninety_percent_interval])
-                        pi_distribution_fig.update_yaxes(range=[0,max((posterior_distrubution_of_pi)/len(posterior_distrubution_of_pi))*1.1])
-                        pi_distribution_fig.show()
-                        """ df = betabinom.rvs(10000,team.binom_a,team.binom_b, size = 100000)/10000 # for å lage liste med datapunkter med 1 observasjon 
-                        fig = px.histogram(df,histnorm='probability',title=team.name)# plotting av datapunktene med mean og  mean+- standard deviation
-                        fig.show()
-                        fig.add_vline(np.mean(df), name="mean",line_color="maroon",annotation_text="mean =" + str(np.mean(df).round(1)))
-                        fig.add_vline(np.mean(df)+np.std(df), line_color='maroon',annotation_text="std")
-                        fig.add_vline(np.mean(df)-+np.std(df), line_color='maroon',annotation_text="std")
-                        fig.update_layout(legend=dict(y=0.5, traceorder='reversed', font_size=16))
-                        fig.show() """
+                            #Markerer graf med intervallestimat, og skalerer grafen så den ikke ser helt uleselig ut når den genereres
+                            fig.add_vline(lower_bound, line_color="maroon")
+                            fig.add_vline(upper_bound, line_color="maroon")
+                            fig.add_vline(middle_bound, line_color="maroon",annotation_text=('Forventet verdi:%.4f'%middle_bound ))
+                            fig.update_xaxes(range=[lower_bound-ninety_percent_interval, upper_bound+ninety_percent_interval])
+                            fig.update_yaxes(range=[0,max(predictive_distrubution/len(predictive_distrubution))*1.1])
+                            fig.show()
+                       
                 
 
                 
