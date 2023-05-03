@@ -183,9 +183,12 @@ def create_teams():
 
 
 if __name__ == '__main__':
+    # her er det koden kjøres
     teams = create_teams()
-    n = 1000
-    m = 6
+    # her starter vi multithreading 
+    n = 1000    # n = antall itterasjoner per kjerne
+    m = 6       # m er antall kjerner
+    #n*m = totalt antall iterasjoner
     input = []
     pool = multiprocessing.Pool(processes=m)
     for i in prange(m):
